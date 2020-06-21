@@ -27,35 +27,23 @@ char *deliveryDriver = "Xavier";
 /* Choose the desired scenario by putting the quantities and prices : */
 
 typedef struct {
-	float quantity;			/* the quantity, in kg, of apples the buyer wants to buy */
-	int stock;				/* the number of crates of apples */
-	float price;			/* the price, in euros, of a kg of apples */
-}Apple;
-
-typedef struct {
-	float quantity;			/* the quantity, in kg, of oranges the buyer wants to buy */
-	int stock;				/* the number of crates of oranges */
-	float price;			/* the price, in euros, of a kg of oranges */
-}Orange;
-
-typedef struct {
-	float quantity;			/* the quantity, in kg, of bananas the buyer wants to buy */
-	int stock;				/* the number of crates of bananas */
-	float price;			/* the price, in euros, of a kg of bananas */
-}Banana;
+	float quantity;			/* the quantity, in kg, of the fruit the buyer wants to buy */
+	int stock;				/* the number of crates of the fruit */
+	float price;			/* the price, in euros, of a kg of the fruit */
+}Fruit;
 
 	/* Quantities, stocks and prices of the articles : */
 
-Apple apple = {1, 2, 3};
+Fruit apple = {1, 2, 3};
 
-Orange orange = {1, 2, 3};
+Fruit orange = {1, 2, 3};
 
-Banana banana = {1, 2, 3};
+Fruit banana = {1, 2, 3};
 
 	
 
 int main (){
-
+	printf("Helllo world!");
 
 	return 0;
 }
