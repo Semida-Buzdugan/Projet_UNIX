@@ -10,7 +10,7 @@
 /* Choose the desired scenario by putting or removing // : */
 
 	/* Server : */
-char *server = sw1;
+char *server = "sw1";
 //char *server = sw2;
 //char *server = sw3;
 
@@ -26,23 +26,23 @@ char *deliveryDriver = "Xavier";
 
 /* Choose the desired scenario by putting the quantities and prices : */
 
-typedef struct apple Apple{
+typedef struct {
 	float quantity;			/* the quantity, in kg, of apples the buyer wants to buy */
 	int stock;				/* the number of crates of apples */
 	float price;			/* the price, in euros, of a kg of apples */
-}
+}Apple;
 
-typedef struct orange Orange{
+typedef struct {
 	float quantity;			/* the quantity, in kg, of oranges the buyer wants to buy */
 	int stock;				/* the number of crates of oranges */
 	float price;			/* the price, in euros, of a kg of oranges */
-}
+}Orange;
 
-typedef struct banana Banana{
+typedef struct {
 	float quantity;			/* the quantity, in kg, of bananas the buyer wants to buy */
 	int stock;				/* the number of crates of bananas */
 	float price;			/* the price, in euros, of a kg of bananas */
-}
+}Banana;
 
 	/* List, stocks and prices of the articles : */
 
@@ -64,7 +64,7 @@ banana.price = 3;
 	
 
 int main (){
-
+	printf("Hello world!");
 
 
 	return 0;
