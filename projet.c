@@ -44,27 +44,17 @@ typedef struct {
 	float price;			/* the price, in euros, of a kg of bananas */
 }Banana;
 
-	/* List, stocks and prices of the articles : */
+	/* Quantities, stocks and prices of the articles : */
 
-Apple apple;
-apple.quantity = 1;
-apple.stock = 2;
-apple.price = 3;
+Apple apple = {1, 2, 3};
 
-Orange orange;
-orange.quantity = 1;
-orange.stock = 2;
-orange.price = 3;
+Orange orange = {1, 2, 3};
 
-Banana banana;
-banana.quantity = 1;
-banana.stock = 2;
-banana.price = 3;
+Banana banana = {1, 2, 3};
 
 	
 
 int main (){
-	printf("Hello world!");
 
 
 	return 0;
