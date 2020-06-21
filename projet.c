@@ -6,8 +6,9 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <signal.h>
 
-/* DEFINING SCENARIO */
+/* DEFINITION OF THE SCENARIO */
 
 /* Put or remove // : */
 
@@ -29,6 +30,7 @@ char *deliveryDriver = "Xavier";
 /* Put the quantities and prices for apple, orange and banana : */
 
 typedef struct {
+	char* name;
 	float quantity;			/* the quantity, in kg, of the fruit to be bought */
 	int stock;				/* the number of crates of the fruit */
 	float price;			/* the price, in euros, of a kg of the fruit */
@@ -36,25 +38,28 @@ typedef struct {
 
 	/* Quantities, stocks and prices of the articles : */
 
-Fruit apple = {1, 4, 7};	/* Write first the number of kg of fruits bought, then the number of crates and finally the price of a kg */
+Fruit articles[3] = {{"apple", 1, 4, 7}, {"orange", 2, 5, 8}, {"banana", 3, 6, 9}};
 
-Fruit orange = {2, 5, 8};
+int p1[2], p2[2], p3[2], p4[2], p5[2], p6[2];
 
-Fruit banana = {3, 6, 9};
+int pid_buyer, pid_server, pid_deliveryDriver;
 
+int indexFruit = 0;
+
+/* Functions of our program */
 
 /* Checking that the scenario is correct */
 
 void checkScenario(){
-	if (apple.quantity <0 || orange.quantity <0 || banana.quantity <0){
+	if (articles[0].quantity <0 || articles[1].quantity <0 || articles[2].quantity <0){
 		printf("Error : you entered a negative quantity\n");
 		exit(1);
 	}
-	if (apple.quantity > apple.stock*10 || orange.quantity > orange.stock*10 || banana.quantity > banana.stock*20){
+	if (articles[0].quantity > articles[0].stock*10 || articles[1].quantity > articles[1].stock*10 || articles[2].quantity > articles[2].stock*20){
 		printf("Error : you entered a quantity superior to the stocks\n");
 		exit(1);
 	}
-	if (apple.price <0 || orange.price <0 || banana.price <0){
+	if (articles[0].price <0 || articles[1].price <0 || articles[2].price <0){
 		printf("Error : you entered a negative price\n");
 		exit(1);
 	}
@@ -77,22 +82,60 @@ void nonBlocking(int p[2]){
 		exit(2);
 	}
 } 
+
+/* Creating a child */
+
+int forkSucceed(){
+	int pid = fork();
+	if (pid == -1){
+		printf("Program. Fork impossible.\n");
+		exit(3);
+	}
+	return pid;
+}
+
+
+
+/* The buyer enters the articles online */
+
+void enterArticle(){
+	printf("Buyer. Enter the article %s.\n", articles[indexFruit].name);
+	write(p2[1], articles[indexFruit].name, sizeof(articles[indexFruit].name));
+	printf("Message sent. Content = \"%s\".\n", articles[indexFruit].name);
+	indexFruit++;
+}
+
+void serverAndBuyer_enter(){
+	printf("Buyer. Closing reading access to tube.\n");
+	close(p2[0]);
 	
+	printf("Buyer. Online entering.\n");
+	for(int i = 0; i<2; i++){
+		enterArticle();
+		kill(pid_server, SIGUSR1);
+	}
+}
+
+/* The server treats the articles entered */
+
+void buyerAndServer_enter(){
+	printf("Salut!\n");
+}
+
+
 
 int main (){
 	checkScenario();
-	
-	int p1[2], p2[2], p3[2], p4[2], p5[2], p6[2];
 
 	printf("Beginning of the scenario.\n");
 	
 	printf("Program. Creating the pipes.\n");
-	pipeSucceed(p1);
-	pipeSucceed(p2);
-	pipeSucceed(p3);
-	pipeSucceed(p4);
-	pipeSucceed(p5);
-	pipeSucceed(p6);
+	pipeSucceed(p1);	/* Reading : Buyer. Writing : Server */
+	pipeSucceed(p2);	/* Reading : Server. Writing : Buyer */
+	pipeSucceed(p3);	/* Reading : Server. Writing : Delivery driver */
+	pipeSucceed(p4);	/* Reading : Delivery driver. Writing : Server */
+	pipeSucceed(p5);	/* Reading : Buyer. Writing : Delivery driver */
+	pipeSucceed(p6);	/* Reading : Delivery driver. Writing : Buyer */
 	
 	printf("Program. Activating the non blocking mode for each pipe.\n");
 	nonBlocking(p1);
@@ -101,6 +144,39 @@ int main (){
 	nonBlocking(p4);
 	nonBlocking(p5);
 	nonBlocking(p6);
+	
+	printf("Program. Creating Delivery driver.\n");
+	pid_deliveryDriver = forkSucceed();
+	switch (pid_deliveryDriver){
+		case 0 :
+			sleep(2);
+			printf("Delivery driver. Beginning.\n");
+			// A finir
+			exit(0);
+		default :
+			printf("Program. Creating Server.\n");
+			pid_server = forkSucceed();
+			switch (pid_server){
+				case 0 :
+					sleep(1);
+					printf("Server. Beginning.\n");
+					signal(SIGUSR1, buyerAndServer_enter);
+					exit(0);
+				default :
+					printf("Program. Creating Buyer.\n");
+					pid_buyer = forkSucceed();
+					switch (pid_buyer){
+						case 0 :
+							printf("Buyer. Beginning.\n");
+							serverAndBuyer_enter();
+							exit(0);
+						default :
+							sleep(1);
+							exit(0);
+					}
+			}
+			
+	}
 
 	return 0;
 }
