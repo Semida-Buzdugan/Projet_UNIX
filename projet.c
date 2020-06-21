@@ -40,6 +40,11 @@ typedef struct {
 
 Fruit articles[3] = {{"apple", 1, 4, 7}, {"orange", 2, 5, 8}, {"banana", 3, 6, 9}};
 
+/* END DEFINITION OF THE SCENARIO */
+
+
+/* Variables of our program */
+
 int p1[2], p2[2], p3[2], p4[2], p5[2], p6[2];
 
 int pid_buyer, pid_server, pid_deliveryDriver;
@@ -110,7 +115,7 @@ void serverAndBuyer_enter(){
 	close(p2[0]);
 	
 	printf("Buyer. Online entering.\n");
-	for(int i = 0; i<2; i++){
+	for(int i = 0; i<3; i++){
 		enterArticle();
 		kill(pid_server, SIGUSR1);
 	}
@@ -119,6 +124,7 @@ void serverAndBuyer_enter(){
 /* The server treats the articles entered */
 
 void buyerAndServer_enter(){
+	// Test :
 	printf("Salut!\n");
 }
 
