@@ -8,6 +8,8 @@
 #include <stdlib.h>
 #include <signal.h>
 
+#define MSGSIZE 256
+
 /* DEFINITION OF THE SCENARIO */
 
 /* Put or remove // : */
@@ -128,7 +130,51 @@ void buyerAndServer_enter(){
 	printf("Salut!\n");
 }
 
+/* Writing in a tube */
 
+void writeInPipe(char message, int *pipe_name){
+    char message_to_return[2];
+    message_to_return[0] = message;
+    message_to_return[1] = '\0';
+
+    close(pipe_name[0]);
+    write(pipe_name[1], message_to_return, sizeof(message_to_return));
+}
+
+/* Reading in a tube */
+
+void readInPipe (char message, int *pipe_name){
+    char* message_read[MSGSIZE];
+    read(pipe_name[0], message_read, MSGSIZE);
+}
+
+/* Function of DeliveryDriver in order to communicate with the Client
+void deliveryDriver(){
+    char buyer_message[2];
+
+    close(buyer_to_deliveryDriver[1]);
+    read(buyer_to_deliveryDriver[0], &buyer_message, sizeof(buyer_message));
+
+    /* On evalue le premier caractere du message lu */
+    /*switch(buyer_message[0]){
+        case START_CONVERSATION:
+            writeInPipe(HELLO, salesman_to_client);
+            printf("Vendeur %s : Bonjour !\n");
+            break;
+        case HELLO:
+            writeInPipe(ARTICLE, salesman_to_client);
+            printf("Vendeur %s : Que puis-je faire pour vous ?\n");
+            break;
+        case ARTICLE:
+            writeInPipe(GIVE, salesman_to_client);
+            printf("Vendeur %s : Tenez voici un(e) %s, c'est l'un des meilleurs produits que nous proposons.\n", getArticleName(&article));
+            break;
+        default:
+            break;
+    }
+    return;
+}
+*/
 
 int main (){
 	checkScenario();
