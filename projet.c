@@ -10,6 +10,15 @@
 
 #define MSGSIZE 256
 
+/*for the exchanges by pipes*/
+#define START_BONJOUR '0'
+#define MISE_A_JOUR_PANIER '1'
+#define TOTAL '2'
+#define ACCUSE_RECEPTION '3'
+#define BON_LIVRAISON '4'
+#define LIVRAISON '5'
+#define SIGNATURE_BONS '6'
+
 /* DEFINITION OF THE SCENARIO */
 
 /* Put or remove // : */
@@ -143,17 +152,27 @@ void writeInPipe(char message, int *pipe_name){
 
 /* Reading in a tube */
 
-void readInPipe (char message, int *pipe_name){
+void readInPipe (int *pipe_name){
     char* message_read[MSGSIZE];
     read(pipe_name[0], message_read, MSGSIZE);
 }
 
-/* Function of DeliveryDriver in order to communicate with the Client
-void deliveryDriver(){
+/*Function of Buyer processus*/
+void Buyer(){
+    return;
+}
+
+/*Function of Server processus*/
+void Server(){
+    return;
+}
+
+/* Function of DeliveryDriver processus*/
+void DeliveryDriver(){
     char buyer_message[2];
 
-    close(buyer_to_deliveryDriver[1]);
-    read(buyer_to_deliveryDriver[0], &buyer_message, sizeof(buyer_message));
+    close(p5[1]);
+    read(p5[0], &buyer_message, sizeof(buyer_message));
 
     /* On evalue le premier caractere du message lu */
     /*switch(buyer_message[0]){
@@ -171,10 +190,10 @@ void deliveryDriver(){
             break;
         default:
             break;
-    }
+    }*/
     return;
 }
-*/
+
 
 int main (){
 	checkScenario();
