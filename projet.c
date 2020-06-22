@@ -159,16 +159,19 @@ void readInPipe (int *pipe_name){
 
 /*Function of Buyer processus*/
 void Buyer(){
+    /*TODO SEMIDA*/
     return;
 }
 
 /*Function of Server processus*/
 void Server(){
+    /*TODO SEMIDA*/
     return;
 }
 
 /* Function of DeliveryDriver processus*/
 void DeliveryDriver(){
+    /*TODO SEMIDA*/
     char buyer_message[2];
 
     close(p5[1]);
@@ -222,7 +225,7 @@ int main (){
 		case 0 :
 			sleep(2);
 			printf("Delivery driver. Beginning.\n");
-			// A finir
+			/*TODO SEMIDA*/
 			exit(0);
 		default :
 			printf("Program. Creating Server.\n");
