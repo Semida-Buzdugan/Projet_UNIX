@@ -193,7 +193,7 @@ int main (){
 			/* ------- ACHETEUR -------  */
 		
 			/* Interaction avec le serveur: */
-			for(int i = 0; i<3; i++){
+			for(int i = 0; i<6; i++){
 				signal(SIGUSR1, buyer);
 				pause();
 			}
