@@ -216,7 +216,7 @@ void deliveryDriverAndServer(){
 	}
 	
 	writeInPipe(DELIVERY_AND_DELIVERY_NOTES, p5);
-	printf("Voici %s votre livraison ainsi que les bons associes.\n", Buyer);
+	printf("Livreur %s : Voici %s votre livraison ainsi que les bons associes.\n", DeliveryDriver, Buyer);
 	kill(pid_buyer, SIGUSR2);		
 	
 	return;
@@ -346,6 +346,7 @@ int main (){
 					/* Interaction avec le livreur: */
 					
 					writeInPipe(DELIVERY_NOTES, p4);
+					printf("Server %s : Transmission des bons de livraisons.\n", Server);
 					kill(pid_deliveryDriver, SIGUSR1);
 					sleep(1);
 					
