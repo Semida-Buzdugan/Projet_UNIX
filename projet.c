@@ -59,7 +59,7 @@ int p1[2], p2[2], p3[2], p4[2];
 
 int pid_buyer, pid_deliveryDriver;
 
-int indexFruit = 0;
+int iteration = 0;
 
 /* FONCTIONS DU PROGRAMME: */
 
@@ -120,9 +120,16 @@ void writeInPipe(char message, int *p){
 	write(p[1], message_to_write, sizeof(message_to_write));
 }
 
+/* Mise à jour d'article : */
+void update(){
+	article = articles[iteration];
+}
+
 /* Actions de l'acheteur: */
 
 void buyer(){
+	update();
+	
 	char server_message[2];
 	
 	close(p1[1]);
@@ -145,6 +152,8 @@ void buyer(){
 /* Actions serveur: */
 
 void serverAndBuyer(){
+	update();
+	
 	char buyer_message[2];
 	
 	close(p2[1]);
@@ -157,6 +166,7 @@ void serverAndBuyer(){
 			break;
 		case BASKET :
 			writeInPipe(ENTER_ARTICLE, p1);
+			iteration++;
 			printf("Serveur %s : Mise à jour du panier.\n", Server);
 			break;
 	}
@@ -180,7 +190,7 @@ int main (){
 	pid_buyer = forkSucceed();
 	switch(pid_buyer){
 		case 0 :
-			/* ACHETEUR */
+			/* ------- ACHETEUR -------  */
 		
 			/* Interaction avec le serveur: */
 			for(int i = 0; i<3; i++){
@@ -195,14 +205,14 @@ int main (){
 			pid_deliveryDriver = forkSucceed();
 			switch(pid_deliveryDriver){
 				case 0:
-					/* LIVREUR */
+					/* ------- LIVREUR ------- */
 					
 					// A finir
 					
 					exit(0);
 					
 				default :
-					/* SERVEUR */
+					/* ------- SERVEUR -------  */
 					
 					sleep(1);
 					
@@ -210,15 +220,6 @@ int main (){
 					close(p1[0]);
 					write(p1[1], "0", sizeof("0"));
 					for (int i=0; i<6; i++){
-						if (i==0 || i==1){
-							article = articles[0];
-						}
-						if (i==2 || i==3){
-							article = articles[1];
-						}
-						if (i==4 || i==5){
-							article = articles[2];
-						}
 						kill(pid_buyer, SIGUSR1);
 						sleep(1);
 						
