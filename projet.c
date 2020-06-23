@@ -53,7 +53,7 @@ Fruit articles[3] = {{"pomme", 1, 4, 7},
 #define PAYMENT '4'
 #define DELIVERY_RECEIPT '5'
 #define DELIVERY_NOTES '6'
-#define DELIVERY '7'
+#define DELIVERY_AND_DELIVERY_NOTES '7'
 #define SIGNATURE '8'
 
 Fruit article;
@@ -203,26 +203,19 @@ void serverAndBuyer(){
 }
 
 void deliveryDriverAndServer(){
-	char server_message1[2];
-	char server_message2[2];
+	char server_message[2];
 	
-	close(p3[1]);
-	read(p3[0], &server_message1, sizeof(server_message1));
-	read(p3[0], &server_message2, sizeof(server_message2));
+	close(p4[1]);
+	read(p4[0], &server_message, sizeof(server_message));
 	
-	switch(server_message1[0]){
+	switch(server_message[0]){
 		case DELIVERY_NOTES :
-			printf("Livreur %s : Bon de livraison 1 reçu.\n", DeliveryDriver);
+			printf("Livreur %s : Bons de livraison reçus.\n", DeliveryDriver);
 			writeInPipe(DELIVERY_NOTES, p5);
 			break;
 	}
-	switch(server_message2[0]){
-		case DELIVERY_NOTES :
-			printf("Livreur %s : Bon de livraison 2 reçu.\n", DeliveryDriver);
-			writeInPipe(DELIVERY_NOTES, p5);
-			break;
-	}
-	writeInPipe(DELIVERY, p5);
+	
+	writeInPipe(DELIVERY_AND_DELIVERY_NOTES, p5);
 	printf("Voici %s votre livraison ainsi que les bons associes.\n", Buyer);
 	kill(pid_buyer, SIGUSR2);		
 	
@@ -230,30 +223,14 @@ void deliveryDriverAndServer(){
 }
 
 void buyerAndDeliveryDriver(){
-	char deliveryDriver_message1[2];
-	char deliveryDriver_message2[2];
-	char deliveryDriver_message3[2];
+	char deliveryDriver_message[2];
 	
 	close(p5[1]);
-	read(p5[0], &deliveryDriver_message1, sizeof(deliveryDriver_message1));
-	read(p5[0], &deliveryDriver_message2, sizeof(deliveryDriver_message2));
-	read(p5[0], &deliveryDriver_message3, sizeof(deliveryDriver_message3));
+	read(p5[0], &deliveryDriver_message, sizeof(deliveryDriver_message));
 	
-	switch (deliveryDriver_message1[0]){
-		case DELIVERY_NOTES :
-			printf("Acheteur %s : Bon de livraison 1 reçu.\n", Buyer);
-			break;
-	}
-	switch (deliveryDriver_message2[0]){
-		case DELIVERY_NOTES :
-			printf("Acheteur %s : Bon de livraison 2 reçu.\n", Buyer);
-			writeInPipe(SIGNATURE, p6);
-			printf("Acheteur %s : Voici le bon signe.\n", Buyer);
-			break;
-	}
-	switch (deliveryDriver_message3[0]){
-		case DELIVERY :
-			printf("Acheteur %s : Livraison recu.\n", Buyer);
+	switch (deliveryDriver_message[0]){
+		case DELIVERY_AND_DELIVERY_NOTES :
+			printf("Acheteur %s : Livraison et bons recu.\n", Buyer);
 			break;
 	}
 	
@@ -352,10 +329,12 @@ int main (){
 					}
 					printf("Serveur %s : Fin de la saisie de vos articles. Votre facture totale est de %.2f euros.\n", Server, receipt);
 					
+					/* 7) */
 					writeInPipe(PAYMENT, p1);
 					kill(pid_buyer, SIGUSR1);
 					sleep(1);
-						
+					
+					/* 8) */
 					serverAndBuyer();
 					kill(pid_buyer, SIGUSR1);
 					sleep(1);
@@ -364,7 +343,8 @@ int main (){
 					kill(pid_buyer, SIGUSR1);
 					sleep(1);
 					
-					writeInPipe(DELIVERY_NOTES, p4);
+					/* Interaction avec le livreur: */
+					
 					writeInPipe(DELIVERY_NOTES, p4);
 					kill(pid_deliveryDriver, SIGUSR1);
 					sleep(1);
