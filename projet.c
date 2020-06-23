@@ -217,7 +217,6 @@ void deliveryDriverAndServer(){
 	
 	writeInPipe(DELIVERY_AND_DELIVERY_NOTES, p5);
 	printf("Livreur %s : Voici %s votre livraison ainsi que les bons associes.\n", DeliveryDriver, Buyer);
-	kill(pid_buyer, SIGUSR2);		
 	
 	return;
 }
@@ -233,9 +232,7 @@ void buyerAndDeliveryDriver(){
 			printf("Acheteur %s : Livraison et bons recu.\n", Buyer);
 			break;
 	}
-	
-	kill(pid_deliveryDriver, SIGUSR2);
-	
+		
 	return;
 }
 
@@ -294,7 +291,7 @@ int main (){
 			}
 			
 			/* Interaction avec le livreur : */
-			signal(SIGUSR2, buyerAndDeliveryDriver);
+			signal(SIGUSR1, buyerAndDeliveryDriver);
 			pause();
 			
 			exit(0);
@@ -309,7 +306,7 @@ int main (){
 					signal(SIGUSR1, deliveryDriverAndServer);
 					pause();
 					
-					signal(SIGUSR2, deliveryDriverAndBuyer);
+					signal(SIGUSR1, deliveryDriverAndBuyer);
 					pause();
 					
 					exit(0);
@@ -347,6 +344,14 @@ int main (){
 					
 					writeInPipe(DELIVERY_NOTES, p4);
 					printf("Server %s : Transmission des bons de livraisons.\n", Server);
+					kill(pid_deliveryDriver, SIGUSR1);
+					sleep(1);
+					
+					/* Transmission des signaux entre livreur et acheteur : */
+					
+					kill(pid_buyer, SIGUSR1);
+					sleep(1);					
+
 					kill(pid_deliveryDriver, SIGUSR1);
 					sleep(1);
 					
