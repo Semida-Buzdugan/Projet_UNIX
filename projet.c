@@ -44,8 +44,6 @@ Fruit articles[3] = {{"pomme", 1, 4, 7},
 /* FIN DEFINITION DU SCENARIO */
 
 
-
-
 /* VARIABLES DU PROGRAMME: */
 
 #define ENTER_ARTICLE '0'
@@ -67,15 +65,15 @@ int iteration = 0;
 
 void checkScenario(){
 	if (articles[0].quantity <0 || articles[1].quantity <0 || articles[2].quantity <0){
-		printf("Error : you entered a negative quantity\n");
+		printf("Erreur : vous avez entre une quantite negative.\n");
 		exit(1);
 	}
 	if (articles[0].quantity > articles[0].stock*10 || articles[1].quantity > articles[1].stock*10 || articles[2].quantity > articles[2].stock*20){
-		printf("Error : you entered a quantity superior to the stocks\n");
+		printf("Erreur : vous avez entre une quantite superieur au stock.\n");
 		exit(1);
 	}
 	if (articles[0].price <0 || articles[1].price <0 || articles[2].price <0){
-		printf("Error : you entered a negative price\n");
+		printf("Erreur : vous avez entre un prix negatif.\n");
 		exit(1);
 	}
 }
@@ -84,7 +82,7 @@ void checkScenario(){
 
 void pipeSucceed(int p[2]){
 	if (pipe(p) < 0){
-		printf("Program. Pipe is not supported.\n");
+		printf("Programme. Le tube n'est pas supporte.\n");
 		exit(1);
 	}
 }
@@ -93,7 +91,7 @@ void pipeSucceed(int p[2]){
 
 void nonBlocking(int p[2]){
 	if (fcntl(p[0], F_SETFL, O_NONBLOCK) < 0){
-		printf("Program. Non blocking mode unavailable");
+		printf("Programme. Mode non bloquant indisponible.\n");
 		exit(2);
 	}
 } 
@@ -103,7 +101,7 @@ void nonBlocking(int p[2]){
 int forkSucceed(){
 	int pid = fork();
 	if (pid == -1){
-		printf("Program. Fork impossible.\n");
+		printf("Programme. Fork impossible.\n");
 		exit(3);
 	}
 	return pid;
@@ -163,7 +161,7 @@ void serverAndBuyer(){
 	switch(buyer_message[0]){
 		case STOCK :
 			writeInPipe(QUANTITY, p1);
-			printf("Serveur %s : Il y a %d cageots de %s de disponible.\n", Server, article.stock, article.name);
+			printf("Serveur %s : Il y a %d cageots/caisses de %s de disponible.\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
 			if (iteration <= 3){
@@ -172,8 +170,15 @@ void serverAndBuyer(){
 			else{
 				// Question 6
 			}
-			iteration++;
 			printf("Serveur %s : Mise à jour du panier.\n", Server);
+			printf("Serveur %s : Votre panier contient:\n", Server);
+			float receipt = 0;
+			for (int i = 0; i<=iteration; i++){
+				printf("		- %f kg de %s\n", articles[i].quantity, articles[i].name);
+				receipt+=articles[i].quantity*articles[i].price;
+			}
+			printf("Serveur %s : Votre facture est de %f euros.\n", Server, receipt);
+			iteration++;
 			break;
 	}
 	
@@ -199,7 +204,7 @@ int main (){
 			/* ------- ACHETEUR -------  */
 		
 			/* Interaction avec le serveur: */
-			for(int i = 0; i<6; i++){
+			for(int i = 0; i<=6; i++){
 				signal(SIGUSR1, buyer);
 				pause();
 			}
