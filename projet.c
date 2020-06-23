@@ -143,6 +143,7 @@ void buyer(){
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
 			printf("Client %s : Je désire %f kg de %s.\n", Buyer, article.quantity, article.name);
+			iteration++;
 			break;
 	}
 	
@@ -165,7 +166,12 @@ void serverAndBuyer(){
 			printf("Serveur %s : Il y a %d cageots de %s de disponible.\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
-			writeInPipe(ENTER_ARTICLE, p1);
+			if (iteration <= 3){
+				writeInPipe(ENTER_ARTICLE, p1);
+			}
+			else{
+				// Question 6
+			}
 			iteration++;
 			printf("Serveur %s : Mise à jour du panier.\n", Server);
 			break;
