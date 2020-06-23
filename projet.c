@@ -140,7 +140,7 @@ void buyer(){
 			break;
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
-			printf("Client %s : Je désire %f kg de %s.\n", Buyer, article.quantity, article.name);
+			printf("Client %s : Je désire %.2f kg de %s.\n", Buyer, article.quantity, article.name);
 			iteration++;
 			break;
 	}
@@ -174,10 +174,10 @@ void serverAndBuyer(){
 			printf("Serveur %s : Votre panier contient:\n", Server);
 			float receipt = 0;
 			for (int i = 0; i<=iteration; i++){
-				printf("		- %f kg de %s\n", articles[i].quantity, articles[i].name);
+				printf("		- %.2f kg de %s\n", articles[i].quantity, articles[i].name);
 				receipt+=articles[i].quantity*articles[i].price;
 			}
-			printf("Serveur %s : Votre facture est de %f euros.\n", Server, receipt);
+			printf("Serveur %s : Votre facture est de %.2f euros.\n", Server, receipt);
 			iteration++;
 			break;
 	}
