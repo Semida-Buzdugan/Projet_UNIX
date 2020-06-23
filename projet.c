@@ -37,9 +37,9 @@ typedef struct {
 }Fruit;
 
 
-Fruit articles[3] = {{"apple", 1, 4, 7}, 
+Fruit articles[3] = {{"pomme", 1, 4, 7}, 
 					 {"orange", 2, 5, 8}, 
-					 {"banana", 3, 6, 9}};
+					 {"banane", 3, 6, 9}};
 
 /* FIN DEFINITION DU SCENARIO */
 
@@ -131,11 +131,11 @@ void buyer(){
 	switch(server_message[0]){
 		case ENTER_ARTICLE:
 			writeInPipe(STOCK, p2);
-			printf("Client %s : Je saisis l'article %s.\n", *Buyer, article.name);
+			printf("Client %s : Je saisis l'article %s.\n", Buyer, article.name);
 			break;
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
-			printf("Client %s : Je désire %f kg de %s.\n", *Buyer, article.quantity, article.name);
+			printf("Client %s : Je désire %f kg de %s.\n", Buyer, article.quantity, article.name);
 			break;
 	}
 	
@@ -153,11 +153,11 @@ void serverAndBuyer(){
 	switch(buyer_message[0]){
 		case STOCK :
 			writeInPipe(QUANTITY, p1);
-			printf("Serveur %s : Il y a %d cageots de %s de disponible.\n", *Server, article.stock, article.name);
+			printf("Serveur %s : Il y a %d cageots de %s de disponible.\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
 			writeInPipe(ENTER_ARTICLE, p1);
-			printf("Serveur %s : Mise à jour du panier.\n", *Server);
+			printf("Serveur %s : Mise à jour du panier.\n", Server);
 			break;
 	}
 	
