@@ -37,9 +37,9 @@ typedef struct {
 }Fruit;
 
 
-Fruit apple = {"apple", 1, 4, 7};
-Fruit orange = {"orange", 2, 5, 8};
-Fruit banana = {"banana", 3, 6, 9};
+Fruit articles[3] = {{"apple", 1, 4, 7}, 
+					 {"orange", 2, 5, 8}, 
+					 {"banana", 3, 6, 9}};
 
 /* FIN DEFINITION DU SCENARIO */
 
@@ -53,9 +53,7 @@ Fruit banana = {"banana", 3, 6, 9};
 #define QUANTITY '2'
 #define BASKET '3'
 
-Fruit *articles[3] = {&apple, &orange, &banana};
-
-Fruit *article;
+Fruit article;
 
 int p1[2], p2[2], p3[2], p4[2];
 
@@ -68,15 +66,15 @@ int indexFruit = 0;
 /* Vérification du scénario: */
 
 void checkScenario(){
-	if (articles[0]->quantity <0 || articles[1]->quantity <0 || articles[2]->quantity <0){
+	if (articles[0].quantity <0 || articles[1].quantity <0 || articles[2].quantity <0){
 		printf("Error : you entered a negative quantity\n");
 		exit(1);
 	}
-	if (articles[0]->quantity > articles[0]->stock*10 || articles[1]->quantity > articles[1]->stock*10 || articles[2]->quantity > articles[2]->stock*20){
+	if (articles[0].quantity > articles[0].stock*10 || articles[1].quantity > articles[1].stock*10 || articles[2].quantity > articles[2].stock*20){
 		printf("Error : you entered a quantity superior to the stocks\n");
 		exit(1);
 	}
-	if (articles[0]->price <0 || articles[1]->price <0 || articles[2]->price <0){
+	if (articles[0].price <0 || articles[1].price <0 || articles[2].price <0){
 		printf("Error : you entered a negative price\n");
 		exit(1);
 	}
@@ -133,11 +131,11 @@ void buyer(){
 	switch(server_message[0]){
 		case ENTER_ARTICLE:
 			writeInPipe(STOCK, p2);
-			printf("Client %s : Je saisis l'article %s.\n", *Buyer, article->name);
+			printf("Client %s : Je saisis l'article %s.\n", *Buyer, article.name);
 			break;
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
-			printf("Client %s : Je désire %f kg de %s.\n", *Buyer, article->quantity, article->name);
+			printf("Client %s : Je désire %f kg de %s.\n", *Buyer, article.quantity, article.name);
 			break;
 	}
 	
@@ -155,7 +153,7 @@ void serverAndBuyer(){
 	switch(buyer_message[0]){
 		case STOCK :
 			writeInPipe(QUANTITY, p1);
-			printf("Serveur %s : Il y a %d cageots de %s de disponible.\n", *Server, article->stock, article->name);
+			printf("Serveur %s : Il y a %d cageots de %s de disponible.\n", *Server, article.stock, article.name);
 			break;
 		case BASKET :
 			writeInPipe(ENTER_ARTICLE, p1);
