@@ -59,6 +59,9 @@ int pid_buyer, pid_deliveryDriver;
 
 int iteration = 0;
 
+float receipt = 0;
+
+
 /* FONCTIONS DU PROGRAMME: */
 
 /* Vérification du scénario: */
@@ -172,12 +175,11 @@ void serverAndBuyer(){
 			}
 			printf("Serveur %s : Mise à jour du panier.\n", Server);
 			printf("Serveur %s : Votre panier contient:\n", Server);
-			float receipt = 0;
+			receipt = 0;
 			for (int i = 0; i<=iteration; i++){
 				printf("		- %.2f kg de %s\n", articles[i].quantity, articles[i].name);
 				receipt+=articles[i].quantity*articles[i].price;
 			}
-			printf("Serveur %s : Votre facture est de %.2f euros.\n", Server, receipt);
 			iteration++;
 			break;
 	}
@@ -236,6 +238,7 @@ int main (){
 						
 						serverAndBuyer();
 					}
+					printf("Serveur %s : Fin de la saisie de vos articles. Votre facture totale est de %.2f euros.\n", Server, receipt);
 			}
 	}
 	
