@@ -6,7 +6,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <signal.h>
 
 /* DEFINITION OF THE SCENARIO */
 
@@ -45,11 +44,11 @@ Fruit articles[3] = {{"apple", 1, 4, 7}, {"orange", 2, 5, 8}, {"banana", 3, 6, 9
 
 /* Variables of our program */
 
+#define MSGSIZE 256
+
 int p1[2], p2[2], p3[2], p4[2], p5[2], p6[2];
 
 int pid_buyer, pid_server, pid_deliveryDriver;
-
-int indexFruit = 0;
 
 /* Functions of our program */
 
@@ -100,32 +99,46 @@ int forkSucceed(){
 }
 
 
-
-/* The buyer enters the articles online */
-
-void enterArticle(){
-	printf("Buyer. Enter the article %s.\n", articles[indexFruit].name);
-	write(p2[1], articles[indexFruit].name, sizeof(articles[indexFruit].name));
-	printf("Message sent. Content = \"%s\".\n", articles[indexFruit].name);
-	indexFruit++;
-}
-
 void serverAndBuyer_enter(){
 	printf("Buyer. Closing reading access to tube.\n");
 	close(p2[0]);
 	
 	printf("Buyer. Online entering.\n");
 	for(int i = 0; i<3; i++){
-		enterArticle();
-		kill(pid_server, SIGUSR1);
+		printf("Buyer. Enter the article %s.\n", articles[i].name);
+		write(p2[1], articles[i].name, sizeof(articles[i].name));
+		printf("Buyer. Message sent. Content = \"%s\".\n", articles[i].name);
+		sleep(3);
 	}
 }
 
 /* The server treats the articles entered */
 
 void buyerAndServer_enter(){
-	// Test :
-	printf("Salut!\n");
+	char* fruitName;
+	
+	printf("Server. Online reading.\n");
+	for(int i = 0; i<3; i++){		
+		printf("Server. Closing writing access to tube.\n");
+		close(p2[1]);
+		
+		printf("Server. Read the article entered.\n");
+		read(p2[0], fruitName, MSGSIZE);
+		printf("Server. Message received. Content = \"%s\".\n", fruitName);
+		
+		int j = 0;
+		while (strcmp(articles[j].name, fruitName) != 0){
+			j++;
+		}
+		printf("Server. Enter the stock of %s.\n", fruitName);
+		
+		printf("Server. Closing reading access to tube.\n");
+		close(p1[0]);
+		
+		write(p1[1], &articles[i].stock, sizeof(articles[i].stock));
+		printf("Server. Message sent. Content = %d.\n", articles[i].stock);
+		sleep(3);
+	}
 }
 
 
@@ -155,7 +168,7 @@ int main (){
 	pid_deliveryDriver = forkSucceed();
 	switch (pid_deliveryDriver){
 		case 0 :
-			sleep(2);
+			sleep(100);
 			printf("Delivery driver. Beginning.\n");
 			// A finir
 			exit(0);
@@ -166,7 +179,7 @@ int main (){
 				case 0 :
 					sleep(1);
 					printf("Server. Beginning.\n");
-					signal(SIGUSR1, buyerAndServer_enter);
+					buyerAndServer_enter();
 					exit(0);
 				default :
 					printf("Program. Creating Buyer.\n");
@@ -177,7 +190,7 @@ int main (){
 							serverAndBuyer_enter();
 							exit(0);
 						default :
-							sleep(1);
+							sleep(100);
 							exit(0);
 					}
 			}
