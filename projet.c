@@ -190,6 +190,12 @@ void serverAndBuyer(){
 int main (){
 	checkScenario();
 	
+	/* Traitement du cas où l'acheteur ne veut pas acheter tous les types d'articles disponibles: */
+	for(int i = 0; i<3; i++){
+		// Semida
+	}
+
+	
 	pipeSucceed(p1);	/* Lecture : Acheteur. Ecriture : Serveur */
 	pipeSucceed(p2);	/* Lecture : Serveur. Ecriture : Acheter */
 	pipeSucceed(p3);	/* Lecture : Serveur. Ecriture : Livreur */
