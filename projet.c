@@ -211,7 +211,6 @@ void deliveryDriverAndServer(){
 	switch(server_message[0]){
 		case DELIVERY_NOTES :
 			printf("Livreur %s : Bons de livraison reçus.\n", DeliveryDriver);
-			writeInPipe(DELIVERY_NOTES, p5);
 			break;
 	}
 	
@@ -285,7 +284,7 @@ int main (){
 				signal(SIGUSR1, buyer);
 				pause();
 			}
-			for(int i = 0; i< 3; i++){
+			for(int i = 0; i< 4; i++){
 				signal(SIGUSR1, buyer);
 				pause();
 			}
@@ -341,17 +340,18 @@ int main (){
 					sleep(1);
 					
 					/* Interaction avec le livreur: */
-					
+					/* 9) */
 					writeInPipe(DELIVERY_NOTES, p4);
 					printf("Server %s : Transmission des bons de livraisons.\n", Server);
 					kill(pid_deliveryDriver, SIGUSR1);
 					sleep(1);
 					
 					/* Transmission des signaux entre livreur et acheteur : */
-					
+					/* 10) */
 					kill(pid_buyer, SIGUSR1);
 					sleep(1);					
-
+                    
+                    /* 11) */
 					kill(pid_deliveryDriver, SIGUSR1);
 					sleep(1);
 					
