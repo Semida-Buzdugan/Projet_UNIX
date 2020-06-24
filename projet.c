@@ -229,6 +229,8 @@ void buyerAndDeliveryDriver(){
 	switch (deliveryDriver_message[0]){
 		case DELIVERY_AND_DELIVERY_NOTES :
 			printf("Acheteur %s : Livraison et bons recu.\n", Buyer);
+			writeInPipe(SIGNATURE, p6);
+			printf("Acheteur %s : Voici le bon signe %s.\n", Buyer, DeliveryDriver);
 			break;
 	}
 		
