@@ -73,15 +73,15 @@ float receipt = 0;
 
 void checkScenario(){
 	if (articles[0].quantity <0 || articles[1].quantity <0 || articles[2].quantity <0){
-		printf("Erreur : vous avez entre une quantite negative.\n");
+		printf("Erreur : vous avez entr\u00e9 une quantit\u00e9 n\u00e9gative.\n");
 		exit(1);
 	}
 	if (articles[0].quantity > articles[0].stock*10 || articles[1].quantity > articles[1].stock*10 || articles[2].quantity > articles[2].stock*20){
-		printf("Erreur : vous avez entre une quantite superieur au stock.\n");
+		printf("Erreur : vous avez entr\u00e9 une quantit\u00e9 sup\u00e9rieure au stock.\n");
 		exit(1);
 	}
 	if (articles[0].price <0 || articles[1].price <0 || articles[2].price <0){
-		printf("Erreur : vous avez entre un prix negatif.\n");
+		printf("Erreur : vous avez entr\u00e9 un prix n\u00e9gatif.\n");
 		exit(1);
 	}
 }
@@ -90,7 +90,7 @@ void checkScenario(){
 
 void pipeSucceed(int p[2]){
 	if (pipe(p) < 0){
-		printf("Programme. Le tube n'est pas supporte.\n");
+		printf("Programme. Le tube n'est pas support\u00e9.\n");
 		exit(1);
 	}
 }
@@ -150,15 +150,15 @@ void buyer(){
 			break;
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
-			printf("Acheteur %s : Je désire %.2f kg de %s.\n", Buyer, article.quantity, article.name);
+			printf("Acheteur %s : Je d\u00e9sire %.2f kg de %s.\n", Buyer, article.quantity, article.name);
 			iteration++;
 			break;
 		case PAYMENT:
 			writeInPipe(DELIVERY_RECEIPT, p2);
-			printf("Acheteur %s : Mon numero de carte bleu est **** et mon cryptogramme est ***.\n", Buyer);
+			printf("Acheteur %s : Mon num\u00e9ro de carte bleue est **** et mon cryptogramme est ***.\n", Buyer);
 			break;
 		case DELIVERY_RECEIPT:
-			printf("Acheteur %s : Accuse de reception de paiement recu!\n", Buyer);
+			printf("Acheteur %s : Accus\u00e9 de r\u00e9ception de paiement re\u00e7u!\n", Buyer);
 	}
 	
 	return;
@@ -177,13 +177,13 @@ void serverAndBuyer(){
 	switch(buyer_message[0]){
 		case STOCK :
 			writeInPipe(QUANTITY, p1);
-			printf("Serveur %s : Il y a %d cageots/caisses de %s de disponible.\n", Server, article.stock, article.name);
+			printf("Serveur %s : Il y a %d cageots/caisses de %s disponibles.\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
 			if (iteration <= 3){
 				writeInPipe(ENTER_ARTICLE, p1);
 			}
-			printf("Serveur %s : Mise à jour du panier.\n", Server);
+			printf("Serveur %s : Mise \u00e0 jour du panier.\n", Server);
 			printf("Serveur %s : Votre panier contient:\n", Server);
 			receipt = 0;
 			for (int i = 0; i<=iteration; i++){
@@ -194,7 +194,7 @@ void serverAndBuyer(){
 			break;
 		case DELIVERY_RECEIPT :
 			writeInPipe(DELIVERY_RECEIPT, p1);
-			printf("Serveur %s : Envoi de l'accuse de reception du paiement.\n", Server);
+			printf("Serveur %s : Envoi de l'accus\u00e9 de r\u00e9ception du paiement.\n", Server);
 			printf("		ACCUSE DE RECEPTION :	Montant : %.2f euros\n", receipt);
 			break;
 	}
@@ -210,12 +210,12 @@ void deliveryDriverAndServer(){
 	
 	switch(server_message[0]){
 		case DELIVERY_NOTES :
-			printf("Livreur %s : Bons de livraison reçus.\n", DeliveryDriver);
+			printf("Livreur %s : Bons de livraison re\u00e7us.\n", DeliveryDriver);
 			break;
 	}
 	
 	writeInPipe(DELIVERY_AND_DELIVERY_NOTES, p5);
-	printf("Livreur %s : Voici %s votre livraison ainsi que les bons associes.\n", DeliveryDriver, Buyer);
+	printf("Livreur %s : Voici %s votre livraison ainsi que les bons associ\u00e9s.\n", DeliveryDriver, Buyer);
 	
 	return;
 }
@@ -228,9 +228,9 @@ void buyerAndDeliveryDriver(){
 	
 	switch (deliveryDriver_message[0]){
 		case DELIVERY_AND_DELIVERY_NOTES :
-			printf("Acheteur %s : Livraison et bons recu.\n", Buyer);
+			printf("Acheteur %s : Livraison et bons re\u00e7u.\n", Buyer);
 			writeInPipe(SIGNATURE, p6);
-			printf("Acheteur %s : Voici le bon signe %s.\n", Buyer, DeliveryDriver);
+			printf("Acheteur %s : Voici le bon sign\u00e9 %s.\n", Buyer, DeliveryDriver);
 			break;
 	}
 		
@@ -245,7 +245,7 @@ void deliveryDriverAndBuyer(){
 	
 	switch(buyer_message[0]){
 		case SIGNATURE :
-			printf("Livreur %s : Bon signe recu!\n", DeliveryDriver);
+			printf("Livreur %s : Bon sign\u00e9 re\u00e7u !\n", DeliveryDriver);
 			break;
 	}
 	
