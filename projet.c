@@ -7,25 +7,23 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <time.h>
 
 /* DEFINITION DU SCENARIO */
 
 /* Metre ou retirer des // : */
 
 	/* Serveur : */
-char *Server = "sw1";
-//char *server = "sw2";
-//char *server = "sw3";
+char *Servers[3] = {"sw1", "sw2", "sw3"}; 
+char *Server = NULL;
 
 	/* Acheteur : */
-char *Buyer = "Laure";
-//char *buyer = "Philippe";
-//char *buyer = "Paul";
+char *Buyers[3] = {"Laure", "Philippe", "Paul"}; 
+char *Buyer = NULL;
 
 	/* Livreur : */
-char *DeliveryDriver = "Xavier";
-//char *deliveryDriver = "Michel";
-//char *deliveryDriver = "France";
+char *DeliveryDrivers[3] = {"Xavier", "Michel", "France"}; 
+char *DeliveryDriver = NULL;
 
 /* Mettre les quantités, stocks et prix pour chaque fruit: */
 
@@ -68,6 +66,14 @@ float receipt = 0;
 
 
 /* FONCTIONS DU PROGRAMME: */
+
+/* Choix du scénario */
+
+char* chose (char** tab){
+    srand(time(NULL));
+    int i = rand()%3;
+    return tab[i];
+}
 
 /* Vérification du scénario: */
 
@@ -261,6 +267,7 @@ int main (){
 		// Semida
 	}
 
+	//Création des pipes en mode non bloquant
 	
 	pipeSucceed(p1);	/* Lecture : Acheteur. Ecriture : Serveur */
 	pipeSucceed(p2);	/* Lecture : Serveur. Ecriture : Acheter */
@@ -275,6 +282,14 @@ int main (){
 	nonBlocking(p4);
 	nonBlocking(p5);
 	nonBlocking(p6);
+	
+	//CHOIX SCENARIO 
+	
+	printf("CHOIX DU SCENARIO \n");
+	Server = chose(Servers);
+	Buyer = chose(Buyers);
+	DeliveryDriver = chose(DeliveryDrivers);
+	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s \n", Buyer, Server, DeliveryDriver);
 	
 	pid_buyer = forkSucceed();
 	switch(pid_buyer){
