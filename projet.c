@@ -75,7 +75,7 @@ char* chose (char** tab){
 
 /* Choix du stock */
 
-int choseStock(int max){
+int choseRand(int max){
     srand(time(NULL));
     int i;
     do{
@@ -286,8 +286,8 @@ int main (){
 	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s. \n", Buyer, Server, DeliveryDriver);
 	
 	for (int i=0; i<3; i++){
-	    articles[i].stock = choseStock(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
-	    articles[i].quantity = rand()%articles[i].stock;
+	    articles[i].stock = choseRand(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
+	    articles[i].quantity = choseRand(articles[i].stock);
 	    articles[i].price = rand()%(10-5)+5; //Le prix est choisi aléatoirement entre 5 et 10 euros.
 	    sleep(1);
 	}
@@ -374,7 +374,7 @@ int main (){
 					kill(pid_buyer, SIGUSR1);
 					sleep(1);					
                     
-                    			/* 11) */
+                    /* 11) */
 					kill(pid_deliveryDriver, SIGUSR1);
 					sleep(1);
 					
