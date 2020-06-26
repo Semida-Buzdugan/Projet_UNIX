@@ -29,9 +29,9 @@ char *DeliveryDriver = NULL;
 
 typedef struct {
 	char *name;				/* le nom de l'article */
-	int quantity;			/* la quantité, en kg de fruit acheté */
+	int quantity;			/* la quantité, en cageot(s)/caisse(s) de fruit acheté */
 	int stock;				/* le nombre de cageot/caisse de fruit */
-	float price;			/* le prix, en euros, d'un kg de fruit */
+	float price;			/* le prix, en euros, d'un(e) cageot(s)/caisse(s) de fruit */
 }Fruit;
 
 
@@ -165,7 +165,7 @@ void buyer(){
 			break;
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
-			printf("Acheteur %s : Je d\u00e9sire %d kg de %ss.\n", Buyer, article.quantity, article.name);
+			printf("Acheteur %s : Je d\u00e9sire %d cageot(s)/caisse(s) de %ss.\n", Buyer, article.quantity, article.name);
 			iteration++;
 			break;
 		case PAYMENT:
