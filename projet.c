@@ -29,7 +29,7 @@ char *DeliveryDriver = NULL;
 
 typedef struct {
 	char *name;				/* le nom de l'article */
-	float quantity;			/* la quantité, en kg de fruit acheté */
+	int quantity;			/* la quantité, en kg de fruit acheté */
 	int stock;				/* le nombre de cageot/caisse de fruit */
 	float price;			/* le prix, en euros, d'un kg de fruit */
 }Fruit;
@@ -62,7 +62,6 @@ int pid_buyer, pid_deliveryDriver;
 int iteration = 0;
 
 float receipt = 0;
-
 
 /* FONCTIONS DU PROGRAMME: */
 
@@ -166,7 +165,7 @@ void buyer(){
 			break;
 		case QUANTITY:
 			writeInPipe(BASKET, p2);
-			printf("Acheteur %s : Je d\u00e9sire %.2f kg de %s.\n", Buyer, article.quantity, article.name);
+			printf("Acheteur %s : Je d\u00e9sire %d kg de %ss.\n", Buyer, article.quantity, article.name);
 			iteration++;
 			break;
 		case PAYMENT:
@@ -203,7 +202,7 @@ void serverAndBuyer(){
 			printf("Serveur %s : Votre panier contient:\n", Server);
 			receipt = 0;
 			for (int i = 0; i<=iteration; i++){
-				printf("		- %.2f cageot(s)/caisse(s) de %s\n", articles[i].quantity, articles[i].name);
+				printf("		- %d cageot(s)/caisse(s) de %ss\n", articles[i].quantity, articles[i].name);
 				receipt+=articles[i].quantity*articles[i].price;
 			}
 			iteration++;
@@ -226,7 +225,8 @@ void deliveryDriverAndServer(){
 	
 	switch(server_message[0]){
 		case DELIVERY_NOTES :
-			printf("Livreur %s : Bons de livraison re\u00e7us.\n", DeliveryDriver);
+			printf("Livreur %s : Bons de livraison et liste d'articles re\u00e7us en double exemplaire.\n", DeliveryDriver);
+			printf("Les articles commandés sont : %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n", articles[0].quantity, articles[0].name, articles[1].quantity, articles[0].name, articles[2].quantity, articles[0].name);
 			break;
 	}
 	
@@ -308,7 +308,7 @@ int main (){
 	    articles[i].quantity = rand()%articles[i].stock;
 	    sleep(1);
 	}
-	printf("En stock il y a %d cageot(s) de pommes, %d cageot(s) d'oranges et %d caisse(s) de bananes \n", articles[0].stock,articles[1].stock, articles[2].stock);
+	printf("En stock il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n", articles[0].stock, articles[0].name, articles[1].stock, articles[0].name, articles[2].stock, articles[0].name);
 	
 	pid_buyer = forkSucceed();
 	switch(pid_buyer){
