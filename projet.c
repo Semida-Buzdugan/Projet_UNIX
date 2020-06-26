@@ -35,12 +35,11 @@ typedef struct {
 }Fruit;
 
 
-Fruit articles[3] = {{"pomme", 1, 4, 7}, 
-					 {"orange", 2, 5, 8}, 
-					 {"banane", 3, 6, 9}};
+Fruit articles[3] = {{"pomme", 0, 0, 7}, 
+					 {"orange", 0, 0, 8}, 
+					 {"banane", 0, 0, 9}};
 
 /* FIN DEFINITION DU SCENARIO */
-
 
 /* VARIABLES DU PROGRAMME: */
 
@@ -67,12 +66,30 @@ float receipt = 0;
 
 /* FONCTIONS DU PROGRAMME: */
 
-/* Choix du scénario */
+/* Choix du scénario : quel acheteur, quel vendeur, quel livreur */
 
 char* chose (char** tab){
     srand(time(NULL));
     int i = rand()%3;
     return tab[i];
+}
+
+/* Choix du stock */
+
+int choseStock(int max){
+    srand(time(NULL));
+    int i;
+    do{
+        i = rand()%max;
+    }while(i==0);
+    return i;
+}
+
+/* Choix de la quantité */
+
+int choseQuantity (int stock){
+    srand(time(NULL));
+    return (rand()%stock);
 }
 
 /* Vérification du scénario: */
@@ -289,7 +306,11 @@ int main (){
 	Server = chose(Servers);
 	Buyer = chose(Buyers);
 	DeliveryDriver = chose(DeliveryDrivers);
-	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s \n", Buyer, Server, DeliveryDriver);
+	for (int i=0; i<3; i++){
+	    articles[i].stock = choseStock(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
+	    articles[i].quantity = rand()%articles[i].stock;
+	}
+	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s. \n En stock il y a %d cageots de %s, %d cageots de %s et %d caisses de %s \n", Buyer, Server, DeliveryDriver, articles[0].stock, articles[0].name,articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
 	
 	pid_buyer = forkSucceed();
 	switch(pid_buyer){
