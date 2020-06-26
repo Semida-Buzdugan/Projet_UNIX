@@ -85,13 +85,6 @@ int choseStock(int max){
     return i;
 }
 
-/* Choix de la quantité */
-
-int choseQuantity (int stock){
-    srand(time(NULL));
-    return (rand()%stock);
-}
-
 /* Vérification du scénario: */
 
 void checkScenario(){
@@ -200,7 +193,7 @@ void serverAndBuyer(){
 	switch(buyer_message[0]){
 		case STOCK :
 			writeInPipe(QUANTITY, p1);
-			printf("Serveur %s : Il y a %d cageots/caisses de %s disponibles.\n", Server, article.stock, article.name);
+			printf("Serveur %s : Il y a %d cageot(s)/caisse(s) de %s disponibles.\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
 			if (iteration <= 3){
@@ -210,7 +203,7 @@ void serverAndBuyer(){
 			printf("Serveur %s : Votre panier contient:\n", Server);
 			receipt = 0;
 			for (int i = 0; i<=iteration; i++){
-				printf("		- %.2f kg de %s\n", articles[i].quantity, articles[i].name);
+				printf("		- %.2f cageot(s)/caisse(s) de %s\n", articles[i].quantity, articles[i].name);
 				receipt+=articles[i].quantity*articles[i].price;
 			}
 			iteration++;
@@ -304,13 +297,18 @@ int main (){
 	
 	printf("CHOIX DU SCENARIO \n");
 	Server = chose(Servers);
+	sleep(1); //On utilise cette commande pour avoir de bonnes valeurs aléatoires
 	Buyer = chose(Buyers);
+	sleep(1);
 	DeliveryDriver = chose(DeliveryDrivers);
+	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s. \n", Buyer, Server, DeliveryDriver);
+	
 	for (int i=0; i<3; i++){
 	    articles[i].stock = choseStock(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
 	    articles[i].quantity = rand()%articles[i].stock;
+	    sleep(1);
 	}
-	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s. \n En stock il y a %d cageots de %s, %d cageots de %s et %d caisses de %s \n", Buyer, Server, DeliveryDriver, articles[0].stock, articles[0].name,articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
+	printf("En stock il y a %d cageot(s) de pommes, %d cageot(s) d'oranges et %d caisse(s) de bananes \n", articles[0].stock,articles[1].stock, articles[2].stock);
 	
 	pid_buyer = forkSucceed();
 	switch(pid_buyer){
