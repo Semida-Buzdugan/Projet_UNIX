@@ -63,10 +63,9 @@ int chooseStock(int max){
 #define BASKET '3'
 #define PAYMENT '4'
 #define DELIVERY_RECEIPT '5'
-#define END '6'
-#define DELIVERY_NOTES '7'
-#define DELIVERY_AND_DELIVERY_NOTES '8'
-#define SIGNATURE '9'
+#define DELIVERY_NOTES '6'
+#define DELIVERY_AND_DELIVERY_NOTES '7'
+#define SIGNATURE '8'
 
 Fruit article;
 
