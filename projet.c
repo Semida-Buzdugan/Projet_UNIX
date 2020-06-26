@@ -11,27 +11,20 @@
 
 /* DEFINITION DU SCENARIO */
 
-/* Metre ou retirer des // : */
-
-	/* Serveur : */
 char *Servers[3] = {"sw1", "sw2", "sw3"}; 
-char *Server = NULL;
+char *Server;
 
-	/* Acheteur : */
 char *Buyers[3] = {"Laure", "Philippe", "Paul"}; 
-char *Buyer = NULL;
+char *Buyer;
 
-	/* Livreur : */
 char *DeliveryDrivers[3] = {"Xavier", "Michel", "France"}; 
-char *DeliveryDriver = NULL;
-
-/* Mettre les quantités, stocks et prix pour chaque fruit: */
+char *DeliveryDriver;
 
 typedef struct {
 	char *name;				/* le nom de l'article */
 	int quantity;			/* la quantité, en cageot(s)/caisse(s) de fruit acheté */
 	int stock;				/* le nombre de cageot/caisse de fruit */
-	float price;			/* le prix, en euros, d'un(e) cageot(s)/caisse(s) de fruit */
+	float price;			/* le prix, en euros, d'un(e) cageot/caisse de fruit */
 }Fruit;
 
 
@@ -39,7 +32,28 @@ Fruit articles[3] = {{"pomme", 0, 0, 0},
 					 {"orange", 0, 0, 0}, 
 					 {"banane", 0, 0, 0}};
 
+/* Choix aléatoire de l'acheteur, du vendeur et du livreur dans le scénario : */
+
+char* choose (char** tab){
+    srand(time(NULL));
+    int i = rand()%3;
+    return tab[i];
+}
+
+/* Choix aléatoire du stock */
+
+int chooseStock(int max){
+    srand(time(NULL));
+    int i;
+    do{
+        i = rand()%max;
+    }while(i==0);
+    return i;
+}
+
+
 /* FIN DEFINITION DU SCENARIO */
+
 
 /* VARIABLES DU PROGRAMME: */
 
@@ -57,38 +71,19 @@ Fruit article;
 
 int p1[2], p2[2], p3[2], p4[2], p5[2], p6[2];
 
-int pid_buyer, pid_deliveryDriver;
+int pidBuyer, pidDeliveryDriver;
 
 int iteration = 0;
-
 float receipt = 0;
 
+
 /* FONCTIONS DU PROGRAMME: */
-
-/* Choix du scénario : quel acheteur, quel vendeur, quel livreur */
-
-char* chose (char** tab){
-    srand(time(NULL));
-    int i = rand()%3;
-    return tab[i];
-}
-
-/* Choix du stock */
-
-int choseRand(int max){
-    srand(time(NULL));
-    int i;
-    do{
-        i = rand()%max;
-    }while(i==0);
-    return i;
-}
 
 /* Création d'un tube: */
 
 void pipeSucceed(int p[2]){
 	if (pipe(p) < 0){
-		printf("Programme. Le tube n'est pas support\u00e9.\n");
+		printf("Le tube n'est pas support\u00e9.\n");
 		exit(1);
 	}
 }
@@ -97,7 +92,7 @@ void pipeSucceed(int p[2]){
 
 void nonBlocking(int p[2]){
 	if (fcntl(p[0], F_SETFL, O_NONBLOCK) < 0){
-		printf("Programme. Mode non bloquant indisponible.\n");
+		printf("Mode non bloquant indisponible.\n");
 		exit(2);
 	}
 } 
@@ -107,15 +102,15 @@ void nonBlocking(int p[2]){
 int forkSucceed(){
 	int pid = fork();
 	if (pid == -1){
-		printf("Programme. Fork impossible.\n");
+		printf("Fork impossible.\n");
 		exit(3);
 	}
 	return pid;
 }
 
-/* Ecriture dans un pipe: */
+/* Ecriture dans un pipe: les échanges se faisant à l'aide de constantes de type char, il faut, pour écrire dans un pipe, les transformer en chaînes. */
 
-void writeInPipe(char message, int *p){
+void writePipe(char message, int *p){
 	char message_to_write[2];
 	message_to_write[0] = message;
 	message_to_write[1] = '\0';
@@ -124,62 +119,63 @@ void writeInPipe(char message, int *p){
 	write(p[1], message_to_write, sizeof(message_to_write));
 }
 
-/* Mise à jour d'article : */
+/* Mise à jour de la variable article : */
 void update(){
 	article = articles[iteration];
 }
 
-/* Actions de l'acheteur: */
+/* Interaction entre l'acheteur et le serveur: */
 
-void buyer(){
+void buyerInteractsWithServer(){
 	update();
 	
-	char server_message[2];
+	char messageServer[2];
 	
 	close(p1[1]);
-	read(p1[0], &server_message, sizeof(server_message));
+	read(p1[0], &messageServer, sizeof(messageServer));
 	
-	switch(server_message[0]){
+	switch(messageServer[0]){
 		case ENTER_ARTICLE:
 			if (iteration <= 2){
-				writeInPipe(STOCK, p2);
+				writePipe(STOCK, p2);
 				printf("\nAcheteur %s : Je saisis l'article %s.\n", Buyer, article.name);
 			}
 			break;
 		case QUANTITY:
-			writeInPipe(BASKET, p2);
+			writePipe(BASKET, p2);
 			printf("Acheteur %s : Je d\u00e9sire %d cageot(s)/caisse(s) de %ss.\n", Buyer, article.quantity, article.name);
 			iteration++;
 			break;
 		case PAYMENT:
-			writeInPipe(DELIVERY_RECEIPT, p2);
+			writePipe(DELIVERY_RECEIPT, p2);
 			printf("Acheteur %s : Mon num\u00e9ro de carte bleue est **** et mon cryptogramme est ***.\n", Buyer);
 			break;
 		case DELIVERY_RECEIPT:
 			printf("Acheteur %s : Accus\u00e9 de r\u00e9ception de paiement re\u00e7u!\n\n", Buyer);
+			break;
 	}
 	
 	return;
 }
 
-/* Actions serveur: */
+/* Interaction entre le serveur et l'acheteur: */
 
-void serverAndBuyer(){
+void serverInteractsWithBuyer(){
 	update();
 	
-	char buyer_message[2];
+	char messageBuyer[2];
 	
 	close(p2[1]);
-	read(p2[0], &buyer_message, sizeof(buyer_message));
+	read(p2[0], &messageBuyer, sizeof(messageBuyer));
 	
-	switch(buyer_message[0]){
+	switch(messageBuyer[0]){
 		case STOCK :
-			writeInPipe(QUANTITY, p1);
-			printf("Serveur %s : Il y a %d cageot(s)/caisse(s) de %s disponibles.\n", Server, article.stock, article.name);
+			writePipe(QUANTITY, p1);
+			printf("Serveur %s : Il y a %d cageot(s)/caisse(s) de %ss disponible(s).\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
 			if (iteration <= 3){
-				writeInPipe(ENTER_ARTICLE, p1);
+				writePipe(ENTER_ARTICLE, p1);
 			}
 			printf("Serveur %s : Mise \u00e0 jour du panier.\n", Server);
 			printf("Serveur %s : Votre panier contient:\n", Server);
@@ -191,44 +187,48 @@ void serverAndBuyer(){
 			iteration++;
 			break;
 		case DELIVERY_RECEIPT :
-			writeInPipe(DELIVERY_RECEIPT, p1);
+			writePipe(DELIVERY_RECEIPT, p1);
 			printf("Serveur %s : Envoi de l'accus\u00e9 de r\u00e9ception du paiement.\n", Server);
-			printf("		ACCUSE DE RECEPTION :	Montant : %.2f euros\n", receipt);
+			printf("		ACCUSE DE RECEPTION :	Montant : %.2f €\n", receipt);
 			break;
 	}
 	
 	return;
 }
 
-void deliveryDriverAndServer(){
-	char server_message[2];
+/* Interaction entre le livreur et le serveur: */
+
+void deliveryDriverInteractsWithServer(){
+	char messageServer[2];
 	
 	close(p4[1]);
-	read(p4[0], &server_message, sizeof(server_message));
+	read(p4[0], &messageServer, sizeof(messageServer));
 	
-	switch(server_message[0]){
+	switch(messageServer[0]){
 		case DELIVERY_NOTES :
 			printf("Livreur %s : Bons de livraison et liste d'articles re\u00e7us en double exemplaire.\n", DeliveryDriver);
-			printf("Les articles commandés sont : %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n\n", articles[0].quantity, articles[0].name, articles[1].quantity, articles[1].name, articles[2].quantity, articles[2].name);
+			printf("			Les articles commandés sont : %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss. \n\n", articles[0].quantity, articles[0].name, articles[1].quantity, articles[1].name, articles[2].quantity, articles[2].name);
 			break;
 	}
 	
-	writeInPipe(DELIVERY_AND_DELIVERY_NOTES, p5);
+	writePipe(DELIVERY_AND_DELIVERY_NOTES, p5);
 	printf("Livreur %s : Voici %s votre livraison ainsi que les bons associ\u00e9s.\n", DeliveryDriver, Buyer);
 	
 	return;
 }
 
-void buyerAndDeliveryDriver(){
-	char deliveryDriver_message[2];
+/* Interaction entre l'acheteur et le livreur: */
+
+void buyerInteractsWithDeliveryDriver(){
+	char messageDeliveryDriver[2];
 	
 	close(p5[1]);
-	read(p5[0], &deliveryDriver_message, sizeof(deliveryDriver_message));
+	read(p5[0], &messageDeliveryDriver, sizeof(messageDeliveryDriver));
 	
-	switch (deliveryDriver_message[0]){
+	switch (messageDeliveryDriver[0]){
 		case DELIVERY_AND_DELIVERY_NOTES :
 			printf("Acheteur %s : Livraison et bons re\u00e7u.\n", Buyer);
-			writeInPipe(SIGNATURE, p6);
+			writePipe(SIGNATURE, p6);
 			printf("Acheteur %s : Voici le bon sign\u00e9 %s.\n", Buyer, DeliveryDriver);
 			break;
 	}
@@ -236,13 +236,15 @@ void buyerAndDeliveryDriver(){
 	return;
 }
 
-void deliveryDriverAndBuyer(){
-	char buyer_message[2];
+/* Interaction entre le livreur et le client: */
+
+void deliveryDriverInteractsWithBuyer(){
+	char messageBuyer[2];
 	
 	close(p6[1]);
-	read(p6[0], &buyer_message, sizeof(buyer_message));
+	read(p6[0], &messageBuyer, sizeof(messageBuyer));
 	
-	switch(buyer_message[0]){
+	switch(messageBuyer[0]){
 		case SIGNATURE :
 			printf("Livreur %s : Bon sign\u00e9 re\u00e7u !\n", DeliveryDriver);
 			break;
@@ -252,14 +254,28 @@ void deliveryDriverAndBuyer(){
 }
 
 
-int main (){
-	
-	/* Traitement du cas où l'acheteur ne veut pas acheter tous les types d'articles disponibles: */
-	for(int i = 0; i<3; i++){
-		// Semida
-	}
 
-	//Création des pipes en mode non bloquant
+int main (){
+
+	/* CHOIX DU SCENARIO */
+	
+	printf("CHOIX DU SCENARIO \n\n");
+	Server = choose(Servers);
+	sleep(1); //On utilise cette commande pour avoir de bonnes valeurs aléatoires.
+	Buyer = choose(Buyers);
+	sleep(1);
+	DeliveryDriver = choose(DeliveryDrivers);
+	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9(e) par %s. \n", Buyer, Server, DeliveryDriver);
+	
+	for (int i=0; i<3; i++){
+	    articles[i].stock = chooseStock(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
+	    articles[i].quantity = chooseStock(articles[i].stock);
+	    articles[i].price = rand()%(10-5)+5; //Le prix est choisi aléatoirement entre 5 et 10 euros.
+	    sleep(1);
+	}
+	printf("En stock, il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss. \n", articles[0].stock, articles[0].name, articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
+	
+	/* Création des pipes en mode non bloquant: */
 	
 	pipeSucceed(p1);	/* Lecture : Acheteur. Ecriture : Serveur */
 	pipeSucceed(p2);	/* Lecture : Serveur. Ecriture : Acheter */
@@ -275,56 +291,40 @@ int main (){
 	nonBlocking(p5);
 	nonBlocking(p6);
 	
-	//CHOIX SCENARIO 
-	
-	printf("CHOIX DU SCENARIO \n\n");
-	Server = chose(Servers);
-	sleep(1); //On utilise cette commande pour avoir de bonnes valeurs aléatoires
-	Buyer = chose(Buyers);
-	sleep(1);
-	DeliveryDriver = chose(DeliveryDrivers);
-	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9 par %s. \n", Buyer, Server, DeliveryDriver);
-	
-	for (int i=0; i<3; i++){
-	    articles[i].stock = choseRand(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
-	    articles[i].quantity = choseRand(articles[i].stock);
-	    articles[i].price = rand()%(10-5)+5; //Le prix est choisi aléatoirement entre 5 et 10 euros.
-	    sleep(1);
-	}
-	printf("En stock il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n", articles[0].stock, articles[0].name, articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
-	
-	pid_buyer = forkSucceed();
-	switch(pid_buyer){
+	pidBuyer = forkSucceed();
+	switch(pidBuyer){
 		case 0 :
 			/* ------- ACHETEUR -------  */
 		
 			/* Interaction avec le serveur : */
+			/* Questions 1 à 5: */
 			for(int i = 0; i< 5; i++){
-				signal(SIGUSR1, buyer);
+				signal(SIGUSR1, buyerInteractsWithServer);
 				pause();
 			}
+			/* Questions 6 à 8: */
 			for(int i = 0; i< 4; i++){
-				signal(SIGUSR1, buyer);
+				signal(SIGUSR1, buyerInteractsWithServer);
 				pause();
 			}
 			
 			/* Interaction avec le livreur : */
-			signal(SIGUSR1, buyerAndDeliveryDriver);
+			signal(SIGUSR1, buyerInteractsWithDeliveryDriver);
 			pause();
 			
 			exit(0);
 		
 		default :
 			sleep(1);
-			pid_deliveryDriver = forkSucceed();
-			switch(pid_deliveryDriver){
+			pidDeliveryDriver = forkSucceed();
+			switch(pidDeliveryDriver){
 				case 0:
 					/* ------- LIVREUR ------- */
 					
-					signal(SIGUSR1, deliveryDriverAndServer);
+					signal(SIGUSR1, deliveryDriverInteractsWithServer);
 					pause();
 					
-					signal(SIGUSR1, deliveryDriverAndBuyer);
+					signal(SIGUSR1, deliveryDriverInteractsWithBuyer);
 					pause();
 					
 					exit(0);
@@ -335,47 +335,47 @@ int main (){
 					sleep(1);
 					
 					/* Interaction avec l'acheteur: */
-					writeInPipe(ENTER_ARTICLE, p1);
+					writePipe(ENTER_ARTICLE, p1);
 					for (int i=0; i<6; i++){
-						kill(pid_buyer, SIGUSR1);
+						kill(pidBuyer, SIGUSR1);
 						sleep(1);
 						
-						serverAndBuyer();
+						serverInteractsWithBuyer();
 					}
-					printf("\nServeur %s : Fin de la saisie de vos articles. Voici votre facture\n", Server);
-					printf("Serveur %s : - %ss - %d cageot(s)/caisse(s) - %.2f PU - %.2f € \n", Server, articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
-					printf("            : - %ss - %d cageot(s)/caisse(s) - %.2f PU - %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
-					printf("            : - %ss - %d cageot(s)/caisse(s) - %.2f PU - %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
-					printf("Le total est de %.2f euros.\n", receipt);
+					printf("\nServeur %s : Fin de la saisie de vos articles. Voici votre facture:\n", Server);
+					printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
+					printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
+					printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
+					printf("			Le total est de %.2f €.\n", receipt);
 					
 					/* 7) */
-					writeInPipe(PAYMENT, p1);
-					kill(pid_buyer, SIGUSR1);
+					writePipe(PAYMENT, p1);
+					kill(pidBuyer, SIGUSR1);
 					sleep(1);
 					
 					/* 8) */
-					serverAndBuyer();
-					kill(pid_buyer, SIGUSR1);
+					serverInteractsWithBuyer();
+					kill(pidBuyer, SIGUSR1);
 					sleep(1);
 					
-					serverAndBuyer();
-					kill(pid_buyer, SIGUSR1);
+					serverInteractsWithBuyer();
+					kill(pidBuyer, SIGUSR1);
 					sleep(1);
 					
 					/* Interaction avec le livreur: */
 					/* 9) */
-					writeInPipe(DELIVERY_NOTES, p4);
+					writePipe(DELIVERY_NOTES, p4);
 					printf("Server %s : Transmission des bons de livraisons.\n", Server);
-					kill(pid_deliveryDriver, SIGUSR1);
+					kill(pidDeliveryDriver, SIGUSR1);
 					sleep(1);
 					
 					/* Transmission des signaux entre livreur et acheteur : */
 					/* 10) */
-					kill(pid_buyer, SIGUSR1);
+					kill(pidBuyer, SIGUSR1);
 					sleep(1);					
                     
                     /* 11) */
-					kill(pid_deliveryDriver, SIGUSR1);
+					kill(pidDeliveryDriver, SIGUSR1);
 					sleep(1);
 					
 					exit(0);
