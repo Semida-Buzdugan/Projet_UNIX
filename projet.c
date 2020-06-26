@@ -35,9 +35,9 @@ typedef struct {
 }Fruit;
 
 
-Fruit articles[3] = {{"pomme", 0, 0, 7}, 
-					 {"orange", 0, 0, 8}, 
-					 {"banane", 0, 0, 9}};
+Fruit articles[3] = {{"pomme", 0, 0, 0}, 
+					 {"orange", 0, 0, 0}, 
+					 {"banane", 0, 0, 0}};
 
 /* FIN DEFINITION DU SCENARIO */
 
@@ -82,23 +82,6 @@ int choseStock(int max){
         i = rand()%max;
     }while(i==0);
     return i;
-}
-
-/* Vérification du scénario: */
-
-void checkScenario(){
-	if (articles[0].quantity <0 || articles[1].quantity <0 || articles[2].quantity <0){
-		printf("Erreur : vous avez entr\u00e9 une quantit\u00e9 n\u00e9gative.\n");
-		exit(1);
-	}
-	if (articles[0].quantity > articles[0].stock*10 || articles[1].quantity > articles[1].stock*10 || articles[2].quantity > articles[2].stock*20){
-		printf("Erreur : vous avez entr\u00e9 une quantit\u00e9 sup\u00e9rieure au stock.\n");
-		exit(1);
-	}
-	if (articles[0].price <0 || articles[1].price <0 || articles[2].price <0){
-		printf("Erreur : vous avez entr\u00e9 un prix n\u00e9gatif.\n");
-		exit(1);
-	}
 }
 
 /* Création d'un tube: */
@@ -160,7 +143,7 @@ void buyer(){
 		case ENTER_ARTICLE:
 			if (iteration <= 2){
 				writeInPipe(STOCK, p2);
-				printf("Acheteur %s : Je saisis l'article %s.\n", Buyer, article.name);
+				printf("\nAcheteur %s : Je saisis l'article %s.\n", Buyer, article.name);
 			}
 			break;
 		case QUANTITY:
@@ -173,7 +156,7 @@ void buyer(){
 			printf("Acheteur %s : Mon num\u00e9ro de carte bleue est **** et mon cryptogramme est ***.\n", Buyer);
 			break;
 		case DELIVERY_RECEIPT:
-			printf("Acheteur %s : Accus\u00e9 de r\u00e9ception de paiement re\u00e7u!\n", Buyer);
+			printf("Acheteur %s : Accus\u00e9 de r\u00e9ception de paiement re\u00e7u!\n\n", Buyer);
 	}
 	
 	return;
@@ -226,7 +209,7 @@ void deliveryDriverAndServer(){
 	switch(server_message[0]){
 		case DELIVERY_NOTES :
 			printf("Livreur %s : Bons de livraison et liste d'articles re\u00e7us en double exemplaire.\n", DeliveryDriver);
-			printf("Les articles commandés sont : %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n", articles[0].quantity, articles[0].name, articles[1].quantity, articles[0].name, articles[2].quantity, articles[0].name);
+			printf("Les articles commandés sont : %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n\n", articles[0].quantity, articles[0].name, articles[1].quantity, articles[1].name, articles[2].quantity, articles[2].name);
 			break;
 	}
 	
@@ -270,7 +253,6 @@ void deliveryDriverAndBuyer(){
 
 
 int main (){
-	checkScenario();
 	
 	/* Traitement du cas où l'acheteur ne veut pas acheter tous les types d'articles disponibles: */
 	for(int i = 0; i<3; i++){
@@ -295,7 +277,7 @@ int main (){
 	
 	//CHOIX SCENARIO 
 	
-	printf("CHOIX DU SCENARIO \n");
+	printf("CHOIX DU SCENARIO \n\n");
 	Server = chose(Servers);
 	sleep(1); //On utilise cette commande pour avoir de bonnes valeurs aléatoires
 	Buyer = chose(Buyers);
@@ -306,9 +288,10 @@ int main (){
 	for (int i=0; i<3; i++){
 	    articles[i].stock = choseStock(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
 	    articles[i].quantity = rand()%articles[i].stock;
+	    articles[i].price = rand()%(10-5)+5; //Le prix est choisi aléatoirement entre 5 et 10 euros.
 	    sleep(1);
 	}
-	printf("En stock il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n", articles[0].stock, articles[0].name, articles[1].stock, articles[0].name, articles[2].stock, articles[0].name);
+	printf("En stock il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss \n", articles[0].stock, articles[0].name, articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
 	
 	pid_buyer = forkSucceed();
 	switch(pid_buyer){
@@ -359,7 +342,11 @@ int main (){
 						
 						serverAndBuyer();
 					}
-					printf("Serveur %s : Fin de la saisie de vos articles. Votre facture totale est de %.2f euros.\n", Server, receipt);
+					printf("\nServeur %s : Fin de la saisie de vos articles. Voici votre facture\n", Server);
+					printf("Serveur %s : - %ss - %d cageot(s)/caisse(s) - %.2f PU - %.2f € \n", Server, articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
+					printf("            : - %ss - %d cageot(s)/caisse(s) - %.2f PU - %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
+					printf("            : - %ss - %d cageot(s)/caisse(s) - %.2f PU - %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
+					printf("Le total est de %.2f euros.\n", receipt);
 					
 					/* 7) */
 					writeInPipe(PAYMENT, p1);
