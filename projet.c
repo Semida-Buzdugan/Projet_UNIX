@@ -63,9 +63,10 @@ int chooseStock(int max){
 #define BASKET '3'
 #define PAYMENT '4'
 #define DELIVERY_RECEIPT '5'
-#define DELIVERY_NOTES '6'
-#define DELIVERY_AND_DELIVERY_NOTES '7'
-#define SIGNATURE '8'
+#define END '6'
+#define DELIVERY_NOTES '7'
+#define DELIVERY_AND_DELIVERY_NOTES '8'
+#define SIGNATURE '9'
 
 Fruit article;
 
@@ -136,10 +137,8 @@ void buyerInteractsWithServer(){
 	
 	switch(messageServer[0]){
 		case ENTER_ARTICLE:
-			if (iteration <= 2){
-				writePipe(STOCK, p2);
-				printf("\nAcheteur %s : Je saisis l'article %s.\n", Buyer, article.name);
-			}
+			writePipe(STOCK, p2);
+			printf("\nAcheteur %s : Je saisis l'article %s.\n", Buyer, article.name);
 			break;
 		case QUANTITY:
 			writePipe(BASKET, p2);
@@ -174,9 +173,6 @@ void serverInteractsWithBuyer(){
 			printf("Serveur %s : Il y a %d cageot(s)/caisse(s) de %ss disponible(s).\n", Server, article.stock, article.name);
 			break;
 		case BASKET :
-			if (iteration <= 3){
-				writePipe(ENTER_ARTICLE, p1);
-			}
 			printf("Serveur %s : Mise \u00e0 jour du panier.\n", Server);
 			printf("Serveur %s : Votre panier contient:\n", Server);
 			receipt = 0;
@@ -185,12 +181,25 @@ void serverInteractsWithBuyer(){
 				receipt+=articles[i].quantity*articles[i].price;
 			}
 			iteration++;
+			
+			if(iteration <= 2){
+				writePipe(ENTER_ARTICLE, p1);
+			}
+			else{
+				writePipe(PAYMENT, p1);
+				printf("\nServeur %s : Fin de la saisie de vos articles. Voici votre facture:\n", Server);
+				printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
+				printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
+				printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
+				printf("			Le total est de %.2f €.\n", receipt);
+			}
 			break;
 		case DELIVERY_RECEIPT :
 			writePipe(DELIVERY_RECEIPT, p1);
 			printf("Serveur %s : Envoi de l'accus\u00e9 de r\u00e9ception du paiement.\n", Server);
 			printf("		ACCUSE DE RECEPTION :	Montant : %.2f €\n", receipt);
 			break;
+		
 	}
 	
 	return;
@@ -298,12 +307,12 @@ int main (){
 		
 			/* Interaction avec le serveur : */
 			/* Questions 1 à 5: */
-			for(int i = 0; i< 5; i++){
+			for(int i = 0; i<= 5; i++){
 				signal(SIGUSR1, buyerInteractsWithServer);
 				pause();
 			}
 			/* Questions 6 à 8: */
-			for(int i = 0; i< 4; i++){
+			for(int i = 0; i<=1; i++){
 				signal(SIGUSR1, buyerInteractsWithServer);
 				pause();
 			}
@@ -336,31 +345,20 @@ int main (){
 					
 					/* Interaction avec l'acheteur: */
 					writePipe(ENTER_ARTICLE, p1);
-					for (int i=0; i<6; i++){
+					for (int i=0; i<=5; i++){
 						kill(pidBuyer, SIGUSR1);
 						sleep(1);
 						
 						serverInteractsWithBuyer();
 					}
-					printf("\nServeur %s : Fin de la saisie de vos articles. Voici votre facture:\n", Server);
-					printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
-					printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
-					printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
-					printf("			Le total est de %.2f €.\n", receipt);
 					
-					/* 7) */
-					writePipe(PAYMENT, p1);
-					kill(pidBuyer, SIGUSR1);
+					for (int i=0; i<=1; i++){
+						kill(pidBuyer, SIGUSR1);
 					sleep(1);
+						if (i == 0)
+							serverInteractsWithBuyer();
+					}
 					
-					/* 8) */
-					serverInteractsWithBuyer();
-					kill(pidBuyer, SIGUSR1);
-					sleep(1);
-					
-					serverInteractsWithBuyer();
-					kill(pidBuyer, SIGUSR1);
-					sleep(1);
 					
 					/* Interaction avec le livreur: */
 					/* 9) */
