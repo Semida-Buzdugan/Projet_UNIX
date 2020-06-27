@@ -52,7 +52,7 @@ float receipt = 0;
 
 /* Vérification de la cohérence du scénario: */
 
-void checkScenario(Fruit *articles){
+void checkScenario(){
 	if (articles[0].stock == 0 || articles[1].stock == 0 || articles[2].stock == 0){
 		printf("Nous sommes un commerce s\u00e9rieux! Nous ne sommes jamais à court de stock!\n");
 		exit(1);
@@ -288,7 +288,7 @@ int main (){
 	articles[1] = orange;
 	articles[2] = banane;
 	
-	checkScenario(articles);
+	checkScenario();
 	
 	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9(e) par %s. \n", Buyer, Server, DeliveryDriver);
 	printf("En stock, il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss. \n", articles[0].stock, articles[0].name, articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
