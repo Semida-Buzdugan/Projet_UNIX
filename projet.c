@@ -54,7 +54,7 @@ float receipt = 0;
 
 void checkScenario(Fruit *articles){
 	if (articles[0].stock == 0 || articles[1].stock == 0 || articles[2].stock == 0){
-		printf("Nous sommes un commerce s\u00e9rieux! Nous ne sommes jamais à cours de stock!\n");
+		printf("Nous sommes un commerce s\u00e9rieux! Nous ne sommes jamais à court de stock!\n");
 		exit(1);
 	}
 	
@@ -370,18 +370,15 @@ int main (){
 					
 					
 					/* Interaction avec le livreur: */
-					/* 9) */
 					writePipe(DELIVERY_NOTES, p4);
 					printf("Server %s : Transmission des bons de livraisons.\n", Server);
 					kill(pidDeliveryDriver, SIGUSR1);
 					sleep(1);
 					
 					/* Transmission des signaux entre livreur et acheteur : */
-					/* 10) */
 					kill(pidBuyer, SIGUSR1);
 					sleep(1);					
                     
-                    /* 11) */
 					kill(pidDeliveryDriver, SIGUSR1);
 					sleep(1);
 					
