@@ -9,16 +9,9 @@
 #include <signal.h>
 #include <time.h>
 
-/* DEFINITION DU SCENARIO */
+/* ELEMENTS DEFINISSANT LE SCENARIO: */
 
-char *Servers[3] = {"sw1", "sw2", "sw3"}; 
-char *Server;
-
-char *Buyers[3] = {"Laure", "Philippe", "Paul"}; 
-char *Buyer;
-
-char *DeliveryDrivers[3] = {"Xavier", "Michel", "France"}; 
-char *DeliveryDriver;
+char *Server, *Buyer, *DeliveryDriver;
 
 typedef struct {
 	char *name;				/* le nom de l'article */
@@ -27,32 +20,10 @@ typedef struct {
 	float price;			/* le prix, en euros, d'un(e) cageot/caisse de fruit */
 }Fruit;
 
+Fruit articles[3];
 
-Fruit articles[3] = {{"pomme", 0, 0, 0}, 
-					 {"orange", 0, 0, 0}, 
-					 {"banane", 0, 0, 0}};
+/* Le scénario est à définir au début du main, dans le code lui-même. */
 
-/* Choix aléatoire de l'acheteur, du vendeur et du livreur dans le scénario : */
-
-char* choose (char** tab){
-    srand(time(NULL));
-    int i = rand()%3;
-    return tab[i];
-}
-
-/* Choix aléatoire du stock */
-
-int chooseStock(int max){
-    srand(time(NULL));
-    int i;
-    do{
-        i = rand()%max;
-    }while(i==0);
-    return i;
-}
-
-
-/* FIN DEFINITION DU SCENARIO */
 
 
 /* VARIABLES DU PROGRAMME: */
@@ -78,6 +49,35 @@ float receipt = 0;
 
 
 /* FONCTIONS DU PROGRAMME: */
+
+/* Vérification de la cohérence du scénario: */
+
+void checkScenario(Fruit *articles){
+	if (articles[0].stock == 0 || articles[1].stock == 0 || articles[2].stock == 0){
+		printf("Nous sommes un commerce s\u00e9rieux! Nous ne sommes jamais à cours de stock!\n");
+		exit(1);
+	}
+	
+	if (articles[0].quantity <0 || articles[1].quantity <0 || articles[2].quantity <0){
+		printf("Erreur : vous avez entr\u00e9 une quantit\u00e9 n\u00e9gative.\n");
+		exit(1);
+	}
+	if (articles[0].quantity > articles[0].stock || articles[1].quantity > articles[1].stock || articles[2].quantity > articles[2].stock){
+		printf("Erreur : vous avez entr\u00e9 une quantit\u00e9 sup\u00e9rieure au stock.\n");
+		exit(1);
+	}
+	if (articles[0].price <0 || articles[1].price <0 || articles[2].price <0){
+		printf("Erreur : vous avez entr\u00e9 un prix n\u00e9gatif.\n");
+		exit(1);
+	}
+	
+	for (int i=0; i<3; i++){
+		if (articles[i].quantity == 0){
+			printf("Commandez des %ss. Vos clients en raffolent!\n", articles[i].name);
+			exit(1);
+		}
+	}
+}
 
 /* Création d'un tube: */
 
@@ -264,23 +264,33 @@ void deliveryDriverInteractsWithBuyer(){
 
 
 int main (){
+	
+	/* DEFINITION DU SCENARIO */
+	
+	char *Servers[3] = {"sw1", "sw2", "sw3"}; 
+	Server = Servers[0];
 
-	/* CHOIX DU SCENARIO */
+	char *Buyers[3] = {"Laure", "Philippe", "Paul"}; 
+	Buyer = Buyers[0];
+
+	char *DeliveryDrivers[3] = {"Xavier", "Michel", "France"}; 
+	DeliveryDriver = DeliveryDrivers[0];
+
+	Fruit pomme = {"pomme", 15, 40, 23};
+	Fruit orange = {"orange", 20, 50, 21.2};
+	Fruit banane = {"banane", 30, 60, 39};
 	
-	printf("CHOIX DU SCENARIO \n\n");
-	Server = choose(Servers);
-	sleep(1); //On utilise cette commande pour avoir de bonnes valeurs aléatoires.
-	Buyer = choose(Buyers);
-	sleep(1);
-	DeliveryDriver = choose(DeliveryDrivers);
+	/* FIN DEFINITION DU SCENARIO */
+	
+	
+	
+	articles[0] = pomme;
+	articles[1] = orange;
+	articles[2] = banane;
+	
+	checkScenario(articles);
+	
 	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9(e) par %s. \n", Buyer, Server, DeliveryDriver);
-	
-	for (int i=0; i<3; i++){
-	    articles[i].stock = chooseStock(50); //On choisi arbitrairement que le stock maximum qu'on puisse avoir est 50.
-	    articles[i].quantity = chooseStock(articles[i].stock);
-	    articles[i].price = rand()%(10-5)+5; //Le prix est choisi aléatoirement entre 5 et 10 euros.
-	    sleep(1);
-	}
 	printf("En stock, il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss. \n", articles[0].stock, articles[0].name, articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
 	
 	/* Création des pipes en mode non bloquant: */
