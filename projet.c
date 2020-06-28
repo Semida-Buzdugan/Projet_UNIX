@@ -353,7 +353,7 @@ int main (){
 					
 					for (int i=0; i<=1; i++){
 						kill(pidBuyer, SIGUSR1);
-					sleep(1);
+						sleep(1);
 						if (i == 0)
 							serverInteractsWithBuyer();
 					}
