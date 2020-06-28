@@ -16,7 +16,7 @@ char *Server, *Buyer, *DeliveryDriver;
 typedef struct {
 	char *name;				/* le nom de l'article */
 	int quantity;			/* la quantité, en cageot(s)/caisse(s) de fruit acheté */
-	int stock;				/* le nombre de cageot/caisse de fruit */
+	int stock;				/* le nombre de cageot(s)/caisse(s) de fruit */
 	float price;			/* le prix, en euros, d'un(e) cageot/caisse de fruit */
 }Fruit;
 
@@ -51,10 +51,9 @@ float receipt = 0;
 /* FONCTIONS DU PROGRAMME: */
 
 /* Vérification de la cohérence du scénario: */
-
 void checkScenario(){
 	if (articles[0].stock == 0 || articles[1].stock == 0 || articles[2].stock == 0){
-		printf("Nous sommes un commerce s\u00e9rieux! Nous ne sommes jamais à court de stock!\n");
+		printf("Nous sommes un commerce s\u00e9rieux! Nous ne sommes jamais à court de stock! Donnez une valeur non nulle pour les stocks.\n");
 		exit(1);
 	}
 	
@@ -80,7 +79,6 @@ void checkScenario(){
 }
 
 /* Création d'un tube: */
-
 void pipeSucceed(int p[2]){
 	if (pipe(p) < 0){
 		printf("Le tube n'est pas support\u00e9.\n");
@@ -88,8 +86,7 @@ void pipeSucceed(int p[2]){
 	}
 }
 
-/* Acctivation du mode non bloquant: */
-
+/* Activation du mode non bloquant: */
 void nonBlocking(int p[2]){
 	if (fcntl(p[0], F_SETFL, O_NONBLOCK) < 0){
 		printf("Mode non bloquant indisponible.\n");
@@ -98,7 +95,6 @@ void nonBlocking(int p[2]){
 } 
 
 /* Création d'un enfant: */
-
 int forkSucceed(){
 	int pid = fork();
 	if (pid == -1){
@@ -108,8 +104,7 @@ int forkSucceed(){
 	return pid;
 }
 
-/* Ecriture dans un pipe: les échanges se faisant à l'aide de constantes de type char, il faut, pour écrire dans un pipe, les transformer en chaînes. */
-
+/* Ecriture dans un tube: les échanges se faisant à l'aide de constantes de type char, il faut, pour écrire dans un tube, les transformer en chaînes. */
 void writePipe(char message, int *p){
 	char message_to_write[2];
 	message_to_write[0] = message;
@@ -125,7 +120,6 @@ void update(){
 }
 
 /* Interaction entre l'acheteur et le serveur: */
-
 void buyerInteractsWithServer(){
 	update();
 	
@@ -157,7 +151,6 @@ void buyerInteractsWithServer(){
 }
 
 /* Interaction entre le serveur et l'acheteur: */
-
 void serverInteractsWithBuyer(){
 	update();
 	
@@ -205,7 +198,6 @@ void serverInteractsWithBuyer(){
 }
 
 /* Interaction entre le livreur et le serveur: */
-
 void deliveryDriverInteractsWithServer(){
 	char messageServer[2];
 	
@@ -226,7 +218,6 @@ void deliveryDriverInteractsWithServer(){
 }
 
 /* Interaction entre l'acheteur et le livreur: */
-
 void buyerInteractsWithDeliveryDriver(){
 	char messageDeliveryDriver[2];
 	
@@ -244,8 +235,7 @@ void buyerInteractsWithDeliveryDriver(){
 	return;
 }
 
-/* Interaction entre le livreur et le client: */
-
+/* Interaction entre le livreur et l'acheteur: */
 void deliveryDriverInteractsWithBuyer(){
 	char messageBuyer[2];
 	
@@ -293,7 +283,7 @@ int main (){
 	printf("Le sc\u00e9nario choisi est le suivant : %s ach\u00e8te des fruits sur le serveur %s et est livr\u00e9(e) par %s. \n", Buyer, Server, DeliveryDriver);
 	printf("En stock, il y a %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss. \n", articles[0].stock, articles[0].name, articles[1].stock, articles[1].name, articles[2].stock, articles[2].name);
 	
-	/* Création des pipes en mode non bloquant: */
+	/* Création des tubes en mode non bloquant: */
 	
 	pipeSucceed(p1);	/* Lecture : Acheteur. Ecriture : Serveur */
 	pipeSucceed(p2);	/* Lecture : Serveur. Ecriture : Acheter */
@@ -314,7 +304,7 @@ int main (){
 		case 0 :
 			/* ------- ACHETEUR -------  */
 		
-			/* Interaction avec le serveur : */
+			/* Interaction avec le serveur: */
 			/* Questions 1 à 5: */
 			for(int i = 0; i<= 5; i++){
 				signal(SIGUSR1, buyerInteractsWithServer);
@@ -326,7 +316,7 @@ int main (){
 				pause();
 			}
 			
-			/* Interaction avec le livreur : */
+			/* Interaction avec le livreur: */
 			signal(SIGUSR1, buyerInteractsWithDeliveryDriver);
 			pause();
 			
@@ -375,7 +365,7 @@ int main (){
 					kill(pidDeliveryDriver, SIGUSR1);
 					sleep(1);
 					
-					/* Transmission des signaux entre livreur et acheteur : */
+					/* Transmission des signaux entre livreur et acheteur: */
 					kill(pidBuyer, SIGUSR1);
 					sleep(1);					
                     
