@@ -180,10 +180,10 @@ void serverInteractsWithBuyer(){
 			else{
 				writePipe(PAYMENT, p1);
 				printf("\nServeur %s : Fin de la saisie de vos articles. Voici votre facture:\n", Server);
-				printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
-				printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
-				printf("			- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
-				printf("			Le total est de %.2f €.\n", receipt);
+				printf("	- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[0].name, articles[0].quantity, articles[0].price, articles[0].quantity*articles[0].price);
+				printf("	- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[1].name, articles[1].quantity, articles[1].price, articles[1].quantity*articles[1].price);
+				printf("	- %ss - %d cageot(s)/caisse(s) - PU: %.2f € - Total: %.2f € \n", articles[2].name, articles[2].quantity, articles[2].price, articles[2].quantity*articles[2].price);
+				printf("	Le total est de %.2f €.\n", receipt);
 			}
 			break;
 		case DELIVERY_RECEIPT :
@@ -271,8 +271,6 @@ int main (){
 	Fruit banane = {"banane", 30, 60, 39};
 	
 	/* FIN DEFINITION DU SCENARIO */
-	
-	
 	
 	articles[0] = pomme;
 	articles[1] = orange;
