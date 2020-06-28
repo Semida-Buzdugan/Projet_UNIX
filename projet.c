@@ -206,7 +206,7 @@ void deliveryDriverInteractsWithServer(){
 	
 	switch(messageServer[0]){
 		case DELIVERY_NOTES :
-			printf("Livreur %s : Bons de livraison et liste d'articles re\u00e7us en double exemplaire.\n", DeliveryDriver);
+			printf("Livreur %s : Bon de livraison avec la liste des articles re\u00e7u en double exemplaire.\n", DeliveryDriver);
 			printf("			Les articles commandés sont : %d cageot(s) de %ss, %d cageot(s) d'%ss et %d caisse(s) de %ss. \n\n", articles[0].quantity, articles[0].name, articles[1].quantity, articles[1].name, articles[2].quantity, articles[2].name);
 			break;
 	}
